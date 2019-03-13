@@ -34,6 +34,7 @@ def removeFilesExcept(rootDirectory,whiteList):
                 
 
 def downloadFiles(sourceFile,destFile,bucketName,overwrite=True,verbose=True):
+    sourceFile=sourceFile.replace("/home/ubuntu/LINCS/","")
     s3 = boto3.resource('s3')
     if overwrite or not os.path.exists(destFile):
         try:
@@ -48,7 +49,7 @@ def downloadFiles(sourceFile,destFile,bucketName,overwrite=True,verbose=True):
             
 # Performs BWA for the given splitFile, filterCmd, and outputFile
 def runBwa(splitFile,outputFile,filterCmd):
-    cmdStr="/tmp/bwa aln -l 24 -t 1 /tmp/Human_RefSeq/refMrna_ERCC_polyAstrip.hg19.fa /tmp/{} | /tmp/bwa samse -n 20 /tmp/Human_RefSeq/refMrna_ERCC_polyAstrip.hg19.fa - /tmp/{} | {} > {} ".format(splitFile,splitFile,filterCmd,outputFile)
+    cmdStr="/tmp/bwa aln -l 24 -t 2 /tmp/Human_RefSeq/refMrna_ERCC_polyAstrip.hg19.fa /tmp/{} | /tmp/bwa samse -n 20 /tmp/Human_RefSeq/refMrna_ERCC_polyAstrip.hg19.fa - /tmp/{} | {} > {} ".format(splitFile,splitFile,filterCmd,outputFile)
     sys.stderr.write("running cmd:\n{}\n".format(cmdStr))
     runCmd(cmdStr)
 
@@ -57,6 +58,7 @@ def uploadResultsTest(sourceFile,destFile,bucketName):
 # Uploads the result to the appropriate S3 Aligns/splitFile folder
 def uploadResults(sourceFile,destFile,bucketName):
     s3 = boto3.resource('s3')
+    destFile=destFile.replace("/home/ubuntu/LINCS/Aligns","Outputs")
     return s3.meta.client.upload_file(sourceFile, bucketName,destFile)
 
 # Lambda's entry point.
@@ -72,11 +74,12 @@ def lambda_handler(event, context):
     #sourceFiles and directories used in other places
     alignDir='/tmp/Aligns'
     refDir='/tmp/Human_RefSeq'
-    barcodeFile="barcodes_trugrade_96_set4.dat" #in References/BroadUMI directory
-    erccFile="ERCC92.fa"
-    symToRefFile="Human_RefSeq/refGene.hg19.sym2ref.dat"
+    barcodeFile="/tmp/barcodes_trugrade_96_set4.dat" #in References/BroadUMI directory
+    erccFile="/tmp/ERCC92.fa"
+    symToRefFile="/tmp/refGene.hg19.sym2ref.dat"
     
-    sourceFiles= ["umimerge_filter", "bwa", "Human_RefSeq/chrM.fa", barcodeFile, erccFile,symToRefFile, "Human_RefSeq/refGene.hg19.txt", "Human_RefSeq/refMrna_ERCC_polyAstrip.hg19.fa.amb", "Human_RefSeq/refMrna_ERCC_polyAstrip.hg19.fa.ann", "Human_RefSeq/refMrna_ERCC_polyAstrip.hg19.fa.bwt", "Human_RefSeq/refMrna_ERCC_polyAstrip.hg19.fa.fai", "Human_RefSeq/refMrna_ERCC_polyAstrip.hg19.fa.pac", "Human_RefSeq/refMrna_ERCC_polyAstrip.hg19.fa.sa"]
+
+    sourceFiles= ["umimerge_filter", "bwa", "Human_RefSeq/chrM.fa", "barcodes_trugrade_96_set4.dat","ERCC92.fa" ,"refGene.hg19.sym2ref.dat", "Human_RefSeq/refGene.hg19.txt", "Human_RefSeq/refMrna_ERCC_polyAstrip.hg19.fa.amb", "Human_RefSeq/refMrna_ERCC_polyAstrip.hg19.fa.ann", "Human_RefSeq/refMrna_ERCC_polyAstrip.hg19.fa.bwt", "Human_RefSeq/refMrna_ERCC_polyAstrip.hg19.fa.fai", "Human_RefSeq/refMrna_ERCC_polyAstrip.hg19.fa.pac", "Human_RefSeq/refMrna_ERCC_polyAstrip.hg19.fa.sa"]
     
     #change bucketName as necessary - could pass it through event in json payload
     bucketName = "myBucket"    
@@ -139,7 +142,7 @@ def lambda_handler(event, context):
     uploadFile=os.path.dirname(fullPathSplitFile)+'/'+os.path.basename(outputFile)
     sys.stderr.write("Starting bwa at {}".format(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')))
     uploadResults(outputFile,uploadFile,bucketName)
-
+    #uploadResultsTest(outputFile,uploadFile,bucketName)
     #write done time
     sys.stderr.write("Finished at {}".format(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')))
 
