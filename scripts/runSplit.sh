@@ -1,0 +1,3 @@
+#!/bin/bash
+./umisplit -s 150000 -d -v -l 16 -m 0 -N 0 -f -o Aligns -t 6 -b References/Broad_UMI/barcodes_trugrade_96_set4.dat Seqs_local/RNAseq_20150409_Lane1_R1.fastq.gz Seqs_local/RNAseq_20150409_Lane1_R2.fastq.gz Seqs_local/RNAseq_20150409_Lane2_R1.fastq.gz Seqs_local/RNAseq_20150409_Lane2_R2.fastq.gz Seqs_local/RNAseq_20150409_Lane3_R1.fastq.gz Seqs_local/RNAseq_20150409_Lane3_R2.fastq.gz Seqs_local/RNAseq_20150409_Lane4_R1.fastq.gz Seqs_local/RNAseq_20150409_Lane4_R2.fastq.gz Seqs_local/RNAseq_20150409_Lane5_R1.fastq.gz Seqs_local/RNAseq_20150409_Lane5_R2.fastq.gz Seqs_local/RNAseq_20150409_Lane6_R1.fastq.gz Seqs_local/RNAseq_20150409_Lane6_R2.fastq.gz
+date
