@@ -37,7 +37,7 @@ The script uses multiple threads to download the fastq files from S3 to the EC2 
 ### runSplit.sh
 This script is a simple wrapper around umisplit executable on EC2. It is meant to be launched as a background process so that the upload of files can proceed as soon as a split file has been generated 
 
-### runUploadSplitFiles.sh and  
+### runUploadSplitFiles.sh and uploadSplitFiles.sh 
 
 These two scripts are used to upload the split files to S3. umisplit signals that a file is ready for transfer or that umisplit is finished splitting by writing special files. runUploadSplitFiles.sh checks whether umisplit has finished. If so it will call uploadSplitFiles.sh to upload the remaining split files to S3 and then terminate. Otherwise it will call uploadSplitFiles.sh, sleep for 1 second and check again whether umisplit is finished.
 
